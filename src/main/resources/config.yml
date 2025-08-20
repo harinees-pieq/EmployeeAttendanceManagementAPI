@@ -4,7 +4,13 @@ server:
       port: 8080
   adminConnectors:
     - type: http
-      port: 8081
+      port: 8082
+
+database:
+  driverClass: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5432/local_db
+  user: postgres
+  password: postgres
 
 logging:
-  level: ERROR
+  level: INFO

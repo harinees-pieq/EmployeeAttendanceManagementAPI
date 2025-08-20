@@ -1,70 +1,56 @@
-import dao.AttendanceList
+package resources
+
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Response
+import model.AttendanceData
+import model.AttendanceSummary
 import model.CheckInRequest
 import model.CheckOutRequest
-import services.Attendance
+import services.AttendanceService
+import model.ReportRequest
 
 @Path("/attendance")
-class AttendanceResource {
+class AttendanceResource(private val attendanceService: AttendanceService) {
     @GET
-    fun viewAllAttendance(): List<Attendance> {
-        return AttendanceList.attendanceInstance.getAll()
+    fun viewAllAttendance(): List<AttendanceData> {
+        return attendanceService.findAll()
+    }
+
+    @GET
+    @Path("/{id}")
+    fun getAttendance(@PathParam("id") id: String): List<AttendanceData> {
+        return attendanceService.findById(id)
     }
 
     @POST
     @Path("/check-in")
-    fun checkIn(request: CheckInRequest): Response {
-        val resultMap = AttendanceList.attendanceInstance.performCheckIn(
-            request.employeeId,
-            request.checkInDateTime
-        )
-
-        if (resultMap.containsKey("error")) {
-            val errorType = resultMap["error_type"] as? String
-            val status = when (errorType) {
-                "NOT_FOUND" -> Response.Status.NOT_FOUND
-                "CONFLICT" -> Response.Status.CONFLICT
-                else -> Response.Status.BAD_REQUEST
-            }
-            return Response.status(status).entity(mapOf("error" to resultMap["error"])).build()
+    fun checkIn(checkInData: CheckInRequest): Response {
+        return try {
+            val newRecord = attendanceService.checkIn(checkInData)
+            Response.status(Response.Status.CREATED).entity(newRecord).build()
+        } catch (e: ClientErrorException) {
+            Response.status(e.response.status).entity(mapOf("error" to e.message)).build()
+        } catch (e: NotFoundException) {
+            Response.status(Response.Status.NOT_FOUND).entity(mapOf("error" to e.message)).build()
         }
-
-        return Response.ok(resultMap["record"]).build()
     }
 
     @POST
     @Path("/check-out")
-    fun checkOut(request: CheckOutRequest): Response {
-        val resultMap = AttendanceList.attendanceInstance.performCheckOut(
-            request.employeeId,
-            request.checkOutDateTime
-        )
-
-        if (resultMap.containsKey("error")) {
-            val errorType = resultMap["error_type"] as? String
-            val status = when (errorType) {
-                "NOT_FOUND" -> Response.Status.NOT_FOUND
-                else -> Response.Status.BAD_REQUEST
-            }
-            return Response.status(status).entity(mapOf("error" to resultMap["error"])).build()
+    fun checkOut(checkOutData: CheckOutRequest): Response {
+        return try {
+            val updatedRecord = attendanceService.checkOut(checkOutData)
+            Response.ok(updatedRecord).build()
+        } catch (e: ClientErrorException) {
+            Response.status(e.response.status).entity(mapOf("error" to e.message)).build()
+        } catch (e: NotFoundException) {
+            Response.status(Response.Status.NOT_FOUND).entity(mapOf("error" to e.message)).build()
         }
-
-        return Response.ok(resultMap["record"]).build()
     }
 
     @POST
     @Path("/report-summary")
-    fun attendanceSummary(request: Map<String, String>): Response {
-        val fromString = request["fromDate"]
-        val toString = request["toDate"]
-
-        val resultMap = AttendanceList.attendanceInstance.getWorkingHoursSummaryByDateStrings(fromString, toString)
-
-        if (resultMap.containsKey("error")) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(mapOf("error" to resultMap["error"])).build()
-        }
-
-        return Response.ok(resultMap["summary"]).build()
+    fun reportSummary(reportRequest: ReportRequest): List<AttendanceSummary> {
+        return attendanceService.attendanceSummary(reportRequest)
     }
 }
