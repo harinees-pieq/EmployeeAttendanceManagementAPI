@@ -7,6 +7,7 @@ import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.core.Response
 import model.*
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -85,7 +86,17 @@ class AttendanceService(
         }
     }
 
-    fun attendanceSummary(reportRequest: ReportRequest): List<AttendanceSummary> {
-        return attendanceDao.attendanceSummary(reportRequest.fromDate, reportRequest.toDate)
+    fun getSummary(reportRequest: ReportRequest): List<AttendanceSummary> {
+        val fromDate = parseDate(reportRequest.fromDate)
+        val toDate = parseDate(reportRequest.toDate)
+        return attendanceDao.getSummaryReport(fromDate, toDate)
+    }
+
+    private fun parseDate(dateString: String): LocalDate {
+        try {
+            return LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+        } catch (e: DateTimeParseException) {
+            throw ClientErrorException("Invalid date format. Please use 'dd-MM-yyyy'.", Response.Status.BAD_REQUEST)
+        }
     }
 }

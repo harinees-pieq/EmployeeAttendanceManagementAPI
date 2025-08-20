@@ -4,6 +4,7 @@ import jakarta.ws.rs.NotFoundException
 import model.AttendanceSummary
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.Jdbi
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class AttendanceDao(private val jdbi: Jdbi) {
@@ -88,16 +89,20 @@ class AttendanceDao(private val jdbi: Jdbi) {
         }
     }
 
-    fun attendanceSummary(fromDate: String, toDate: String): List<AttendanceSummary> {
-        val sql = """SELECT emp.id AS employeeId, CONCAT(emp.first_name, ' ', emp.last_name) AS employeeName,
-                SUM(att.check_out_date_time - att.check_in_date_time)::text AS totalWorkingHours
-                FROM new_attendance AS att
-                JOIN new_employees AS emp ON emp.id = att.employee_id
-                WHERE DATE(att.check_in_date_time) BETWEEN :fromDate AND :toDate
-                GROUP BY emp.id, employeeName
-                ORDER BY emp.id;"""
+    fun getSummaryReport(fromDate: LocalDate, toDate: LocalDate): List<AttendanceSummary> {
+        val sql = """SELECT a.employee_id AS employeeId,
+                CONCAT(e.first_name, ' ', e.last_name) AS employeeName, 
+                TO_CHAR( justify_interval(SUM(a.check_out_date_time - a.check_in_date_time)), 'FMHH24:MI') AS totalHours
+                FROM new_attendance a
+                JOIN new_employees e ON a.employee_id = e.id
+                WHERE DATE(a.check_in_date_time) BETWEEN :fromDate AND :toDate
+                AND a.check_out_date_time IS NOT NULL
+                GROUP BY a.employee_id, e.first_name, e.last_name
+                ORDER BY a.employee_id"""
         return jdbi.withHandle<List<AttendanceSummary>, Exception> { handle ->
-            handle.createQuery(sql).bind("fromDate",fromDate).bind("toDate", toDate)
+            handle.createQuery(sql)
+                .bind("fromDate", fromDate)
+                .bind("toDate", toDate)
                 .mapTo<AttendanceSummary>().list()
         }
     }

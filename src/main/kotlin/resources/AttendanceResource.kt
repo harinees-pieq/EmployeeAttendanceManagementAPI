@@ -50,7 +50,12 @@ class AttendanceResource(private val attendanceService: AttendanceService) {
 
     @POST
     @Path("/report-summary")
-    fun reportSummary(reportRequest: ReportRequest): List<AttendanceSummary> {
-        return attendanceService.attendanceSummary(reportRequest)
+    fun getAttendanceSummary(reportRequest: ReportRequest): Response {
+        return try {
+            val summary = attendanceService.getSummary(reportRequest)
+            Response.ok(summary).build()
+        } catch (e: ClientErrorException) {
+            Response.status(e.response.status).entity(mapOf("error" to e.message)).build()
+        }
     }
 }
