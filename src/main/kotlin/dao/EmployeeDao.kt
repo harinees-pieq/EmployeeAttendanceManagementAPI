@@ -1,6 +1,9 @@
 package dao
+//APIs
 import org.jdbi.v3.core.Jdbi
+//map to kotlin data class
 import org.jdbi.v3.core.kotlin.mapTo
+//model
 import model.EmployeeData
 
 class EmployeeDao(private val jdbi: Jdbi) {
@@ -51,13 +54,13 @@ class EmployeeDao(private val jdbi: Jdbi) {
         (SELECT id FROM department WHERE name = :department), :reportingTo)"""
         jdbi.withHandle<Int, Exception> { handle ->
             handle.createUpdate(sql)
-            .bind("id", newId)
-            .bind("firstName", firstName)
-            .bind("lastName", lastName)
-            .bind("role", role)
-            .bind("department", department)
-            .bind("reportingTo", reportingTo)
-            .execute()
+                .bind("id", newId)
+                .bind("firstName", firstName)
+                .bind("lastName", lastName)
+                .bind("role", role)
+                .bind("department", department)
+                .bind("reportingTo", reportingTo)
+                .execute()
         }
         val newEmployee = findById(newId)
         if (newEmployee == null) {
@@ -69,7 +72,7 @@ class EmployeeDao(private val jdbi: Jdbi) {
     fun deleteEmployee(id: String): Int {
         return jdbi.withHandle<Int, Exception> { handle ->
             handle.createUpdate("DELETE FROM new_employees WHERE id = :id")
-            .bind("id", id).execute()
+                .bind("id", id).execute()
         }
     }
 }
