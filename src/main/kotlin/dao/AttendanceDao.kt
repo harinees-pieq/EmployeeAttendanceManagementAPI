@@ -1,9 +1,14 @@
 package dao
+
+//models
 import model.AttendanceData
-import jakarta.ws.rs.NotFoundException
 import model.AttendanceSummary
+//map query result to kotlin data class
 import org.jdbi.v3.core.kotlin.mapTo
+//for db operations
 import org.jdbi.v3.core.Jdbi
+import jakarta.ws.rs.NotFoundException
+//date time
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -43,8 +48,7 @@ class AttendanceDao(private val jdbi: Jdbi) {
                     att.check_in_date_time AS checkInDateTime, att.check_out_date_time AS checkOutDateTime
                     FROM new_attendance AS att
                     JOIN new_employees AS emp ON att.employee_id = emp.id
-                    WHERE att.employee_id = :employeeId AND att.check_out_date_time IS NULL
-                    ORDER BY att.check_in_date_time DESC LIMIT 1"""
+                    WHERE att.employee_id = :employeeId AND att.check_out_date_time IS NULL"""
         return jdbi.withHandle<AttendanceData?, Exception> { handle ->
             handle.createQuery(sql).bind("employeeId", employeeId).mapTo<AttendanceData>().findFirst().orElse(null)
         }
