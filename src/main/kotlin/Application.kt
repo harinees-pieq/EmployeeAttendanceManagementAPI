@@ -27,8 +27,7 @@ class Application : Application<MyConfiguration>() {
         val kotlinModule = KotlinModule.Builder().build()
         environment.objectMapper.registerModule(kotlinModule)
         environment.objectMapper.registerModule(JavaTimeModule())
-        environment.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-
+        
         //creates jdbi instance from yml file
         val jdbi = Jdbi.create(configuration.database.build(environment.metrics(), "postgresql"))
 
