@@ -1,13 +1,15 @@
 package resources
 
+//APIs
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Response
+//models
 import model.AttendanceData
-import model.AttendanceSummary
 import model.CheckInRequest
 import model.CheckOutRequest
-import services.AttendanceService
 import model.ReportRequest
+//service
+import services.AttendanceService
 
 @Path("/attendance")
 class AttendanceResource(private val attendanceService: AttendanceService) {
@@ -27,7 +29,7 @@ class AttendanceResource(private val attendanceService: AttendanceService) {
     fun checkIn(checkInData: CheckInRequest): Response {
         return try {
             val newRecord = attendanceService.checkIn(checkInData)
-            Response.status(Response.Status.CREATED).entity(newRecord).build()
+            Response.status(Response.Status.OK).entity(newRecord).build()
         } catch (e: ClientErrorException) {
             Response.status(e.response.status).entity(mapOf("error" to e.message)).build()
         } catch (e: NotFoundException) {
