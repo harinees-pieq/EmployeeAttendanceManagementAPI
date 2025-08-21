@@ -1,11 +1,19 @@
 package services
 
+//dao classes
 import dao.AttendanceDao
 import dao.EmployeeDao
+//exceptions
 import jakarta.ws.rs.ClientErrorException
 import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.core.Response
-import model.*
+//models
+import model.AttendanceData
+import model.ReportRequest
+import model.CheckInRequest
+import model.CheckOutRequest
+import model.AttendanceSummary
+//date time
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
