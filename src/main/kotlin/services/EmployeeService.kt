@@ -1,10 +1,13 @@
 package services
 
+//dao classes
 import dao.AttendanceDao
 import dao.DepartmentDao
 import dao.EmployeeDao
 import dao.RoleDao
+//model
 import model.EmployeeData
+//exceptions
 import java.lang.IllegalArgumentException
 import jakarta.ws.rs.NotFoundException
 
@@ -23,12 +26,11 @@ class EmployeeService(
     }
 
     fun create(employeeData: EmployeeData): EmployeeData {
+        //validations
         if (employeeData.firstName.isBlank()) throw IllegalArgumentException("First name cannot be blank.")
         if (employeeData.lastName.isBlank()) throw IllegalArgumentException("Last name cannot be blank.")
-
         roleDao.findByName(employeeData.role)
             ?: throw IllegalArgumentException("Role '${employeeData.role}' does not exist.")
-
         departmentDao.findByName(employeeData.department)
             ?: throw IllegalArgumentException("Department '${employeeData.department}' does not exist.")
 
