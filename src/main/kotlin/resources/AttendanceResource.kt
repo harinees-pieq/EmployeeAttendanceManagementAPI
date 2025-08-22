@@ -10,6 +10,7 @@ import model.CheckOutRequest
 import model.ReportRequest
 //service
 import services.AttendanceService
+import java.util.UUID
 
 @Path("/attendance")
 class AttendanceResource(private val attendanceService: AttendanceService) {
@@ -20,7 +21,7 @@ class AttendanceResource(private val attendanceService: AttendanceService) {
 
     @GET
     @Path("/{id}")
-    fun getAttendance(@PathParam("id") id: String): List<AttendanceData> {
+    fun getAttendance(@PathParam("id") id: UUID): List<AttendanceData> {
         return attendanceService.findById(id)
     }
 
