@@ -10,6 +10,8 @@ import model.EmployeeData
 //exceptions
 import java.lang.IllegalArgumentException
 import jakarta.ws.rs.NotFoundException
+// Import UUID
+import java.util.UUID
 
 class EmployeeService(
     private val employeeDao: EmployeeDao,
@@ -21,7 +23,7 @@ class EmployeeService(
         return employeeDao.listAll()
     }
 
-    fun findById(id: String): EmployeeData {
+    fun findById(id: UUID): EmployeeData {
         return employeeDao.findById(id) ?: throw NotFoundException("Employee ID $id not found.")
     }
 
@@ -34,18 +36,13 @@ class EmployeeService(
         departmentDao.findByName(employeeData.department)
             ?: throw IllegalArgumentException("Department '${employeeData.department}' does not exist.")
 
-        return employeeDao.addEmployee(
-            firstName = employeeData.firstName,
-            lastName = employeeData.lastName,
-            role = employeeData.role,
-            department = employeeData.department,
-            reportingTo = employeeData.reportingTo
-        )
+        val employeeToCreate = employeeData.copy(id = UUID.randomUUID())
+        return employeeDao.addEmployee(employeeToCreate)
     }
 
-    fun deleteById(id: String) {
+    fun deleteById(id: UUID) {
+        attendanceDao.deleteByEmployeeId(id.toString())
         val rowsDeleted = employeeDao.deleteEmployee(id)
-        attendanceDao.deleteByEmployeeId(id)
         if (rowsDeleted == 0) {
             throw NotFoundException("Employee ID $id not found.")
         }
