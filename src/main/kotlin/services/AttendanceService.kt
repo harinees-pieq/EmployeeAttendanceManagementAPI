@@ -19,6 +19,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.util.UUID
 
 class AttendanceService(
     private val attendanceDao: AttendanceDao,
@@ -35,7 +36,7 @@ class AttendanceService(
         return records
     }
 
-    fun findById(id: String): List<AttendanceData> {
+    fun findById(id: UUID): List<AttendanceData> {
         val records = attendanceDao.findById(id)
         records.forEach { record ->
             if (record.checkOutDateTime != null) {
