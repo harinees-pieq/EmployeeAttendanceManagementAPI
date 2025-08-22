@@ -11,6 +11,7 @@ import jakarta.ws.rs.NotFoundException
 //date time
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 class AttendanceDao(private val jdbi: Jdbi) {
     fun listAll(): List<AttendanceData> {
@@ -24,7 +25,7 @@ class AttendanceDao(private val jdbi: Jdbi) {
         }
     }
 
-    fun findById(id: String): List<AttendanceData> {
+    fun findById(id: UUID): List<AttendanceData> {
         val checkEmployeeQuery = "SELECT COUNT(*) FROM new_employees WHERE id = :id"
         val attendanceQuery = """SELECT att.id, att.employee_id, CONCAT(emp.first_name, ' ', emp.last_name) AS employee_name, att.check_in_date_time,
                                 att.check_out_date_time, (att.check_out_date_time - att.check_in_date_time) AS working_hours
@@ -43,7 +44,7 @@ class AttendanceDao(private val jdbi: Jdbi) {
         }
     }
 
-    fun findActiveCheckIn(employeeId: String): AttendanceData? {
+    fun findActiveCheckIn(employeeId: UUID?): AttendanceData? {
         val sql = """SELECT att.id, att.employee_id AS employeeId, CONCAT(emp.first_name, ' ', emp.last_name) AS employeeName, 
                     att.check_in_date_time AS checkInDateTime, att.check_out_date_time AS checkOutDateTime
                     FROM new_attendance AS att
@@ -54,7 +55,7 @@ class AttendanceDao(private val jdbi: Jdbi) {
         }
     }
 
-    fun checkIn(employeeId: String, checkInTime: LocalDateTime): Int {
+    fun checkIn(employeeId: UUID?, checkInTime: LocalDateTime): Int {
         val sql = "INSERT INTO new_attendance (employee_id, check_in_date_time) VALUES (:employeeId, :checkInDateTime)"
         return jdbi.withHandle<Int, Exception> { handle ->
             handle.createUpdate(sql)
