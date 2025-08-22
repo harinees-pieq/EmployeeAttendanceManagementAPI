@@ -22,7 +22,7 @@ It has logic, validations for managing employees and it uses dao.
 
 ## EmployeeDao.kt
 
-It uses jdbi to perform db operations like list all employees, find by one, generate id, add new employee, delete employee.
+It uses jdbi to perform db operations like list all employees, find by one, add new employee, delete employee.
 
 ## DepartmentDao.kt
 
