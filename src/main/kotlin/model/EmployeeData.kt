@@ -1,10 +1,12 @@
 package model
 
+import java.util.UUID
+
 data class EmployeeData(
-    var id: String = "",
+    var id: UUID? = null,
     var firstName: String = "",
     var lastName: String = "",
     var role: String = "",
     var department: String = "",
-    var reportingTo: String? = null
+    var reportingTo: UUID? = null
 )
