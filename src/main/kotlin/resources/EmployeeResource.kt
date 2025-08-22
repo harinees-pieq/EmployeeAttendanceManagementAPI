@@ -9,6 +9,8 @@ import model.EmployeeData
 import services.EmployeeService
 //exception
 import java.lang.IllegalArgumentException
+// Import UUID
+import java.util.UUID
 
 @Path("/employees")
 class EmployeeResource(private val employeeService: EmployeeService) {
@@ -19,8 +21,16 @@ class EmployeeResource(private val employeeService: EmployeeService) {
 
     @GET
     @Path("/{id}")
-    fun getEmployee(@PathParam("id") id: String): EmployeeData {
-        return employeeService.findById(id)
+    fun getEmployee(@PathParam("id") id: String): Response {
+        return try {
+            val employeeId = UUID.fromString(id)
+            val employee = employeeService.findById(employeeId)
+            Response.ok(employee).build()
+        } catch (e: IllegalArgumentException) {
+            Response.status(Response.Status.BAD_REQUEST).entity(mapOf("error" to "Invalid ID format.")).build()
+        } catch (e: NotFoundException) {
+            Response.status(Response.Status.NOT_FOUND).entity(mapOf("error" to e.message)).build()
+        }
     }
 
     @POST
@@ -36,7 +46,14 @@ class EmployeeResource(private val employeeService: EmployeeService) {
     @DELETE
     @Path("/{id}")
     fun deleteEmployee(@PathParam("id") id: String): Response {
-        employeeService.deleteById(id)
-        return Response.ok(mapOf("success" to "Employee ID $id deleted successfully.")).build()
+        return try {
+            val employeeId = UUID.fromString(id)
+            employeeService.deleteById(employeeId)
+            Response.ok(mapOf("success" to "Employee ID $id deleted successfully.")).build()
+        } catch (e: IllegalArgumentException) {
+            Response.status(Response.Status.BAD_REQUEST).entity(mapOf("error" to "Invalid ID format.")).build()
+        } catch (e: NotFoundException) {
+            Response.status(Response.Status.NOT_FOUND).entity(mapOf("error" to e.message)).build()
+        }
     }
 }
