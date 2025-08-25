@@ -2,11 +2,11 @@
 
 ## Application.kt
 
-It is the main part of our whole API. When it runs,t setsup JSON support by using jackson, connects to postgreSQL db using jdbi, and also initiates dao, service classes, register REST API for attendance, employees and starts the server using Configuration.
+It is the main part of our whole API. When it runs, it setsup JSON support by using jackson, connects to postgreSQL db using jdbi, and also initiates dao, service classes, register REST API for attendance, employees and starts the server using Configuration.
 
 ## MyConfiguration.kt
 
-This class extends Drwizard's Configuration class and provides DataSourceFactory which isused to read db connection from the yaml config file.
+This class extends Dropwizard's Configuration class and provides DataSourceFactory which isused to read db connection from the yaml config file.
 
 ## Config.yml
 
